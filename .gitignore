@@ -1,0 +1,36 @@
+# Secrets & Environment Files (Never commit real credentials)
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# Starter Kit Duplicate Directory
+candidate_kit/
+
+# Frontend & AI Studio Preview Workbench (Not required for FastAPI submission)
+node_modules/
+bun.lock
+public/
+src/
+server.ts
+dist/
+build/
+coverage/
+
+# Python Virtual Environments & Bytecode / Test Caches
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS & Editor Logs
+.DS_Store
+*.log

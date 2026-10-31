@@ -1,0 +1,6 @@
+{
+  "name": "Employee Attendance & Analytics API Workbench",
+  "description": "Production FastAPI + MongoDB 6.0+ Employee Attendance & Analytics API implementation with interactive endpoint sandbox, aggregation pipeline inspector, explain plan analyzer, and 25-scenario automated verification suite.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

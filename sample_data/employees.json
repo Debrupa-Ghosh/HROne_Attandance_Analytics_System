@@ -1,0 +1,72 @@
+[
+  {
+    "emp_code": "EMP0001",
+    "name": "Aarav Sharma",
+    "email": "aarav.sharma@acme.internal",
+    "department": "Engineering",
+    "joined_on": "2024-03-15",
+    "shift_start": "09:00",
+    "shift_end": "18:00",
+    "created_at": 1710483000000
+  },
+  {
+    "emp_code": "EMP0002",
+    "name": "Diya Nair",
+    "email": "diya.nair@acme.internal",
+    "department": "Engineering",
+    "joined_on": "2024-06-01",
+    "shift_start": "09:00",
+    "shift_end": "18:00",
+    "created_at": 1717222200000
+  },
+  {
+    "emp_code": "EMP0003",
+    "name": "Rohan Verma",
+    "email": "rohan.verma@acme.internal",
+    "department": "Engineering",
+    "joined_on": "2025-01-15",
+    "shift_start": "10:00",
+    "shift_end": "19:00",
+    "created_at": 1736915400000
+  },
+  {
+    "emp_code": "EMP0004",
+    "name": "Meera Iyer",
+    "email": "meera.iyer@acme.internal",
+    "department": "Operations",
+    "joined_on": "2024-01-10",
+    "shift_start": "22:00",
+    "shift_end": "06:00",
+    "created_at": 1704867000000
+  },
+  {
+    "emp_code": "EMP0005",
+    "name": "Kabir Patel",
+    "email": "kabir.patel@acme.internal",
+    "department": "Operations",
+    "joined_on": "2024-08-20",
+    "shift_start": "09:00",
+    "shift_end": "18:00",
+    "created_at": 1724124600000
+  },
+  {
+    "emp_code": "EMP0006",
+    "name": "Ananya Desai",
+    "email": "ananya.desai@acme.internal",
+    "department": "Sales",
+    "joined_on": "2024-11-01",
+    "shift_start": "09:30",
+    "shift_end": "18:30",
+    "created_at": 1730431800000
+  },
+  {
+    "emp_code": "EMP0007",
+    "name": "Vikram Rao",
+    "email": "vikram.rao@acme.internal",
+    "department": "HR",
+    "joined_on": "2024-05-12",
+    "shift_start": "09:00",
+    "shift_end": "18:00",
+    "created_at": 1715494200000
+  }
+]

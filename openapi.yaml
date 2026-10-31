@@ -1,0 +1,653 @@
+openapi: 3.1.0
+info:
+  title: Employee Attendance & Analytics API
+  version: 1.0.0
+  description: |
+    Production REST API for Employee Attendance Tracking, Shift Regularization,
+    MongoDB Aggregation Analytics, and Query Execution Plan Inspection.
+servers:
+  - url: http://localhost:8000
+    description: Local FastAPI Server
+paths:
+  /health:
+    get:
+      summary: Database health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: MongoDB is reachable
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        "503":
+          description: MongoDB is unavailable
+  /employees:
+    post:
+      summary: Create a new employee
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeCreate"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "409":
+          description: Duplicate emp_code
+        "422":
+          description: Validation error
+    get:
+      summary: List employees with filtering and pagination
+      operationId: listEmployees
+      parameters:
+        - name: department
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Paginated employee list sorted by emp_code ascending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeListResponse"
+  /attendance/punch-in:
+    post:
+      summary: Record employee punch-in
+      operationId: punchIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PunchInRequest"
+      responses:
+        "201":
+          description: Punch-in recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+        "404":
+          description: Employee not found
+        "409":
+          description: Attendance record already exists for employee and shift date
+        "422":
+          description: Invalid status or timestamp
+  /attendance/punch-out:
+    post:
+      summary: Record employee punch-out
+      operationId: punchOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PunchOutRequest"
+      responses:
+        "200":
+          description: Punch-out recorded and shift metrics calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+        "404":
+          description: Employee or matching punch-in record not found
+        "409":
+          description: Attendance record already closed
+        "422":
+          description: Invalid punch-out time or duration exceeds 24 hours
+  /attendance:
+    get:
+      summary: List attendance logs with filtering and pagination
+      operationId: listAttendance
+      parameters:
+        - name: emp_code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AttendanceStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Paginated attendance list sorted by date DESC, emp_code ASC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceListResponse"
+        "422":
+          description: Invalid filters or date_from > date_to
+  /attendance/{emp_code}/{date}:
+    patch:
+      summary: Manually regularize an attendance record
+      operationId: regularizeAttendance
+      parameters:
+        - name: emp_code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceCorrectionRequest"
+      responses:
+        "200":
+          description: Updated attendance record with audit history entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+        "404":
+          description: Employee or attendance record not found
+        "409":
+          description: Concurrent modification conflict
+        "422":
+          description: Invalid state transition, unchanged values, or invalid timestamps
+  /analytics/employees/{emp_code}/monthly:
+    get:
+      summary: Employee monthly attendance analytics
+      operationId: getEmployeeMonthlyAnalytics
+      parameters:
+        - name: emp_code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+      responses:
+        "200":
+          description: Monthly summary for employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeMonthlyAnalytics"
+        "404":
+          description: Employee not found
+        "422":
+          description: Invalid month parameter
+  /analytics/departments/summary:
+    get:
+      summary: Monthly attendance summary grouped by department
+      operationId: getDepartmentSummary
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+        - name: department
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alphabetically sorted department summary rows
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepartmentSummaryResponse"
+  /analytics/leaderboard/late:
+    get:
+      summary: Monthly late arrival competition leaderboard
+      operationId: getLateLeaderboard
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: department
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ranked leaderboard with competition ranking and cutoff tie inclusion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LateLeaderboardResponse"
+  /analytics/departments/{department}/trend:
+    get:
+      summary: Daily department attendance trend with 7-day moving average
+      operationId: getDepartmentTrend
+      parameters:
+        - name: department
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Densified daily trend with 7-day moving average
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepartmentTrendResponse"
+        "404":
+          description: Unknown department
+        "422":
+          description: Invalid date range or exceeds 92 days
+  /admin/explain/{endpoint}:
+    get:
+      summary: Execute MongoDB explain(executionStats) for target query or pipeline
+      operationId: explainEndpoint
+      parameters:
+        - name: endpoint
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - attendance_list
+              - employee_monthly
+              - department_summary
+              - late_leaderboard
+              - department_trend
+      responses:
+        "200":
+          description: Raw MongoDB executionStats explain output
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [endpoint, collection, explain]
+                properties:
+                  endpoint:
+                    type: string
+                  collection:
+                    type: string
+                  explain:
+                    type: object
+components:
+  schemas:
+    AttendanceStatus:
+      type: string
+      enum: [PRESENT, WFH, ON_DUTY, ABSENT, LEAVE]
+    PunchInStatus:
+      type: string
+      enum: [PRESENT, WFH, ON_DUTY]
+    EmployeeCreate:
+      type: object
+      additionalProperties: false
+      required: [emp_code, name, email, department, joined_on, shift_start, shift_end]
+      properties:
+        emp_code:
+          type: string
+          pattern: ^EMP\d{4,6}$
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        department:
+          type: string
+          minLength: 1
+        joined_on:
+          type: string
+          format: date
+        shift_start:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+        shift_end:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+    EmployeeResponse:
+      allOf:
+        - $ref: "#/components/schemas/EmployeeCreate"
+        - type: object
+          required: [created_at]
+          properties:
+            created_at:
+              type: integer
+    EmployeeListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployeeResponse"
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+    PunchInRequest:
+      type: object
+      additionalProperties: false
+      required: [emp_code]
+      properties:
+        emp_code:
+          type: string
+        punched_at:
+          type: integer
+          nullable: true
+        status:
+          $ref: "#/components/schemas/PunchInStatus"
+          default: PRESENT
+    PunchOutRequest:
+      type: object
+      additionalProperties: false
+      required: [emp_code]
+      properties:
+        emp_code:
+          type: string
+        punched_at:
+          type: integer
+          nullable: true
+    AttendanceCorrectionRequest:
+      type: object
+      additionalProperties: false
+      required: [reason, regularized_by]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+        regularized_by:
+          type: string
+          minLength: 1
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        punch_in:
+          type: integer
+          nullable: true
+        punch_out:
+          type: integer
+          nullable: true
+    AttendanceRecord:
+      type: object
+      required:
+        - emp_code
+        - date
+        - status
+        - punch_in
+        - punch_out
+        - late_minutes
+        - work_hours
+        - overtime_minutes
+        - half_day
+        - history
+      properties:
+        emp_code:
+          type: string
+        date:
+          type: string
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        punch_in:
+          type: integer
+          nullable: true
+        punch_out:
+          type: integer
+          nullable: true
+        late_minutes:
+          type: integer
+        work_hours:
+          type: number
+          nullable: true
+        overtime_minutes:
+          type: integer
+        half_day:
+          type: boolean
+        history:
+          type: array
+          items:
+            type: object
+    AttendanceListResponse:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendanceRecord"
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+    EmployeeMonthlyAnalytics:
+      type: object
+      required:
+        - emp_code
+        - month
+        - working_days
+        - present_days
+        - leave_days
+        - late_count
+        - total_late_minutes
+        - total_overtime_minutes
+        - attendance_pct
+      properties:
+        emp_code:
+          type: string
+        month:
+          type: string
+        working_days:
+          type: integer
+        present_days:
+          type: number
+        leave_days:
+          type: integer
+        late_count:
+          type: integer
+        total_late_minutes:
+          type: integer
+        total_overtime_minutes:
+          type: integer
+        attendance_pct:
+          type: number
+          nullable: true
+    DepartmentSummaryItem:
+      type: object
+      required:
+        - department
+        - headcount
+        - present_days
+        - avg_work_hours
+        - late_count
+        - total_late_minutes
+        - leave_count
+        - on_duty_count
+      properties:
+        department:
+          type: string
+        headcount:
+          type: integer
+        present_days:
+          type: number
+        avg_work_hours:
+          type: number
+          nullable: true
+        late_count:
+          type: integer
+        total_late_minutes:
+          type: integer
+        leave_count:
+          type: integer
+        on_duty_count:
+          type: integer
+    DepartmentSummaryResponse:
+      type: object
+      required: [month, items]
+      properties:
+        month:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepartmentSummaryItem"
+    LateLeaderboardItem:
+      type: object
+      required:
+        - rank
+        - emp_code
+        - name
+        - department
+        - late_count
+        - total_late_minutes
+      properties:
+        rank:
+          type: integer
+        emp_code:
+          type: string
+        name:
+          type: string
+        department:
+          type: string
+        late_count:
+          type: integer
+        total_late_minutes:
+          type: integer
+    LateLeaderboardResponse:
+      type: object
+      required: [month, items]
+      properties:
+        month:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LateLeaderboardItem"
+    DepartmentTrendItem:
+      type: object
+      required:
+        - date
+        - is_working_day
+        - headcount
+        - present_count
+        - late_count
+        - attendance_rate
+        - moving_avg_7d
+      properties:
+        date:
+          type: string
+        is_working_day:
+          type: boolean
+        headcount:
+          type: integer
+        present_count:
+          type: number
+        late_count:
+          type: integer
+        attendance_rate:
+          type: number
+          nullable: true
+        moving_avg_7d:
+          type: number
+          nullable: true
+    DepartmentTrendResponse:
+      type: object
+      required: [department, from, to, items]
+      properties:
+        department:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepartmentTrendItem"

@@ -1,0 +1,122 @@
+[
+  {
+    "emp_code": "EMP0001",
+    "date": "2025-01-02",
+    "status": "PRESENT",
+    "punch_in": 1735788900000,
+    "punch_out": 1735822800000,
+    "late_minutes": 0,
+    "work_hours": 9.42,
+    "overtime_minutes": 30,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0001",
+    "date": "2025-01-03",
+    "status": "PRESENT",
+    "punch_in": 1735876500000,
+    "punch_out": 1735907400000,
+    "late_minutes": 25,
+    "work_hours": 8.58,
+    "overtime_minutes": 0,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0001",
+    "date": "2025-01-04",
+    "status": "ON_DUTY",
+    "punch_in": 1735962420000,
+    "punch_out": 1735983000000,
+    "late_minutes": 17,
+    "work_hours": 5.72,
+    "overtime_minutes": 0,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0001",
+    "date": "2025-01-06",
+    "status": "WFH",
+    "punch_in": 1736134200000,
+    "punch_out": 1736148600000,
+    "late_minutes": 0,
+    "work_hours": 4.0,
+    "overtime_minutes": 0,
+    "half_day": true,
+    "history": [
+      {
+        "at": 1736155800000,
+        "by": "EMP0007",
+        "reason": "Doctor appointment afternoon half-day adjustment",
+        "changes": {
+          "status": {
+            "from": "PRESENT",
+            "to": "WFH"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "emp_code": "EMP0001",
+    "date": "2025-01-07",
+    "status": "LEAVE",
+    "punch_in": null,
+    "punch_out": null,
+    "late_minutes": 0,
+    "work_hours": null,
+    "overtime_minutes": 0,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0002",
+    "date": "2025-01-02",
+    "status": "PRESENT",
+    "punch_in": 1735790520000,
+    "punch_out": 1735821000000,
+    "late_minutes": 32,
+    "work_hours": 8.47,
+    "overtime_minutes": 0,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0002",
+    "date": "2025-01-03",
+    "status": "WFH",
+    "punch_in": 1735875600000,
+    "punch_out": 1735907400000,
+    "late_minutes": 0,
+    "work_hours": 8.83,
+    "overtime_minutes": 0,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0003",
+    "date": "2025-01-16",
+    "status": "PRESENT",
+    "punch_in": 1737003900000,
+    "punch_out": 1737036600000,
+    "late_minutes": 25,
+    "work_hours": 9.08,
+    "overtime_minutes": 30,
+    "half_day": false,
+    "history": []
+  },
+  {
+    "emp_code": "EMP0004",
+    "date": "2025-01-02",
+    "status": "PRESENT",
+    "punch_in": 1735836300000,
+    "punch_out": 1735866000000,
+    "late_minutes": 15,
+    "work_hours": 8.25,
+    "overtime_minutes": 30,
+    "half_day": false,
+    "history": []
+  }
+]

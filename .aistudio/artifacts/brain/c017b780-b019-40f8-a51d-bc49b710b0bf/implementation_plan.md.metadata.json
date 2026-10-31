@@ -1,0 +1,6 @@
+{
+  "summary":  "Plan to safely remove the duplicate /candidate_kit directory from the workspace without affecting FastAPI, Pytest, or the live preview server.",
+  "updatedAt":  "2026-10-31T09:44:23.199590770Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
