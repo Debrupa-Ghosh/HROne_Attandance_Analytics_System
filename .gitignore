@@ -6,8 +6,9 @@ secrets/
 *.pem
 *.key
 
-# Starter Kit Duplicate Directory
+# Starter Kit Duplicate & AI Studio Internal Directories
 candidate_kit/
+.aistudio/
 
 # Frontend & AI Studio Preview Workbench (Not required for FastAPI submission)
 node_modules/
